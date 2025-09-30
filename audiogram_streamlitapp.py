@@ -6,8 +6,7 @@ import numpy as np
 # -------------------------------
 # Load structured dataset
 # -------------------------------
-audiogram_df = pd.read_csv("audiogram_df.csv", index_col=False)
-
+audiogram_df = pd.read_csv("audiogram_df.csv")
 
 # -------------------------------
 # App Title
@@ -58,11 +57,12 @@ category = st.sidebar.multiselect(
 
 filtered_df = audiogram_df[audiogram_df["Category"].isin(category)]
 st.write("Filtered view of dataset based on hearing category:")
-st.dataframe(filtered_df, use_container_width=True)
+st.dataframe(filtered_df, use_container_width=True, hide_index=True)
 
 # Show summary statistics by category
 st.subheader("📈 Summary Statistics by Hearing Category")
-st.write(filtered_df.groupby("Category")[["PTA_Right", "PTA_Left", "WRS_Right", "WRS_Left"]].mean().round(1))
+summary_df = filtered_df.groupby("Category")[["PTA_Right", "PTA_Left", "WRS_Right", "WRS_Left"]].mean().round(1).reset_index()
+st.dataframe(summary_df, use_container_width=True, hide_index=True)
 
 # -------------------------------
 # Section 3b: Radar Graph Explorer
@@ -100,9 +100,3 @@ ax.set_ylim(0, 110)
 
 ax.legend(loc='upper right', bbox_to_anchor=(1.2, 1.1))
 st.pyplot(fig)
-
-
-
-
-
-
