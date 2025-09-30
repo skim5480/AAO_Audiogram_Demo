@@ -44,7 +44,7 @@ Reg-ent can **expand research opportunities** and support the development of new
 """)
 
 # Show the synthesized dataset directly under the text
-st.dataframe(audiogram_df, use_container_width=True)
+st.dataframe(audiogram_df, use_container_width=True, hide_index=True)
 
 # -------------------------------
 # Section 3: Interactive Exploration
@@ -100,6 +100,7 @@ ax.set_ylim(0, 110)
 
 ax.legend(loc='upper right', bbox_to_anchor=(1.2, 1.1))
 st.pyplot(fig)
+
 
 
 
