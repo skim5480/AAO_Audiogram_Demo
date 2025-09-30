@@ -67,27 +67,24 @@ st.dataframe(summary_df, use_container_width=True, hide_index=True)
 # -------------------------------
 # Section 3b: Radar Graph Explorer
 # -------------------------------
-st.subheader("🎯 Radar Graph: PTA vs SRT vs SDT")
+st.subheader("🎯 Radar Graph: Mean PTA, SRT, and SDT by Category")
 
-# Patient selection
-patient_id = st.selectbox("Select Patient for Radar Graph:", audiogram_df["PatientID"].unique())
-patient_data = audiogram_df[audiogram_df["PatientID"] == patient_id].iloc[0]
+# Sidebar category selection
+selected_category = st.selectbox("Select Hearing Loss Category:", audiogram_df["Category"].unique())
+
+# Compute mean values for this category
+mean_values = (
+    audiogram_df[audiogram_df["Category"] == selected_category]
+    [["PTA_Right", "PTA_Left", "SRT_Right", "SRT_Left", "SDT_Right", "SDT_Left"]]
+    .mean()
+)
 
 # Axes = PTA, SRT, SDT for both ears
 categories = ["PTA_Right", "PTA_Left", "SRT_Right", "SRT_Left", "SDT_Right", "SDT_Left"]
 
-pta_values = [patient_data["PTA_Right"], patient_data["PTA_Left"],
-              None, None, None, None]
-srt_values = [None, None,
-              patient_data["SRT_Right"], patient_data["SRT_Left"],
-              None, None]
-sdt_values = [None, None, None, None,
-              patient_data["SDT_Right"], patient_data["SDT_Left"]]
-
-# Fill in radar data (keeping each metric isolated)
-pta_plot = [patient_data["PTA_Right"], patient_data["PTA_Left"], 0, 0, 0, 0]
-srt_plot = [0, 0, patient_data["SRT_Right"], patient_data["SRT_Left"], 0, 0]
-sdt_plot = [0, 0, 0, 0, patient_data["SDT_Right"], patient_data["SDT_Left"]]
+pta_plot = [mean_values["PTA_Right"], mean_values["PTA_Left"], 0, 0, 0, 0]
+srt_plot = [0, 0, mean_values["SRT_Right"], mean_values["SRT_Left"], 0, 0]
+sdt_plot = [0, 0, 0, 0, mean_values["SDT_Right"], mean_values["SDT_Left"]]
 
 # Close radar loops
 pta_plot += pta_plot[:1]
@@ -100,29 +97,30 @@ angles += angles[:1]
 # Plot radar chart
 fig, ax = plt.subplots(figsize=(6,6), subplot_kw=dict(polar=True))
 
-ax.plot(angles, pta_plot, linewidth=2, color="orange", label="PTA")
+ax.plot(angles, pta_plot, linewidth=2, color="orange", label="PTA (Mean)")
 ax.fill(angles, pta_plot, alpha=0.25, color="orange")
 
-ax.plot(angles, srt_plot, linewidth=2, color="blue", label="SRT")
+ax.plot(angles, srt_plot, linewidth=2, color="blue", label="SRT (Mean)")
 ax.fill(angles, srt_plot, alpha=0.25, color="blue")
 
-ax.plot(angles, sdt_plot, linewidth=2, color="green", label="SDT")
+ax.plot(angles, sdt_plot, linewidth=2, color="green", label="SDT (Mean)")
 ax.fill(angles, sdt_plot, alpha=0.25, color="green")
 
 # Labels
 ax.set_xticks(angles[:-1])
 ax.set_xticklabels(categories)
 
-# Radial axis (demo scale 10–60, can change to 0–110 for full clinical)
+# Radial axis (choose 10–60 for demo or 0–110 full clinical)
 ax.set_rlabel_position(0)
 ax.set_yticks([10, 20, 30, 40, 50, 60])
 ax.set_yticklabels(["10","20","30","40","50","60"])
 ax.set_ylim(10, 60)
 
-ax.set_title(f"Patient {patient_id} - PTA vs SRT vs SDT")
+ax.set_title(f"Mean PTA, SRT, SDT - {selected_category}")
 ax.legend(loc="upper right", bbox_to_anchor=(1.1, 1.1))
 
 st.pyplot(fig)
+
 
 
 
