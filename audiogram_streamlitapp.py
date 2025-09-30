@@ -7,6 +7,8 @@ import numpy as np
 # Load structured dataset
 # -------------------------------
 audiogram_df = pd.read_csv("audiogram_df.csv")
+if "Unnamed: 0" in audiogram_df.columns:
+    audiogram_df = audiogram_df.drop(columns=["Unnamed: 0"])
 
 # -------------------------------
 # App Title
@@ -99,6 +101,7 @@ ax.set_ylim(0, 110)
 
 ax.legend(loc='upper right', bbox_to_anchor=(1.2, 1.1))
 st.pyplot(fig)
+
 
 
 
