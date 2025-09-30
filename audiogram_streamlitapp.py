@@ -68,37 +68,25 @@ st.dataframe(summary_df, use_container_width=True, hide_index=True)
 # Section 3b: Radar Graph Explorer
 # -------------------------------
 st.subheader("🎯 Radar Graph: PTA vs SRT by Patient")
+st.subheader("🎯 Radar Graph: PTA vs SRT by Patient")
 
 # Patient selection
 patient_id = st.selectbox("Select Patient for Radar Graph:", filtered_df["PatientID"].unique())
 patient_data = filtered_df[filtered_df["PatientID"] == patient_id].iloc[0]
 
-# Define axes = Hearing Categories
-categories = ["Normal", "Mild", "Moderate", "Moderately-Severe", "Severe", "Profound"]
+# Define axes (PTA & SRT for both ears)
+categories = ["Right Ear PTA", "Left Ear PTA", "Right Ear SRT", "Left Ear SRT"]
 
-# Map PTA and SRT values to axes
-pta_values = [
-    patient_data["PTA_Right"], 
-    patient_data["PTA_Left"],
-    patient_data["PTA_Right"],  # repeated to fill categories (demo logic)
-    patient_data["PTA_Left"],
-    (patient_data["PTA_Right"]+patient_data["PTA_Left"])/2, 
-    max(patient_data["PTA_Right"], patient_data["PTA_Left"])
-]
+pta_values = [patient_data["PTA_Right"], patient_data["PTA_Left"], None, None]
+srt_values = [None, None, patient_data["SRT_Right"], patient_data["SRT_Left"]]
 
-srt_values = [
-    patient_data["SRT_Right"], 
-    patient_data["SRT_Left"],
-    patient_data["SRT_Right"],
-    patient_data["SRT_Left"],
-    (patient_data["SRT_Right"]+patient_data["SRT_Left"])/2, 
-    max(patient_data["SRT_Right"], patient_data["SRT_Left"])
-]
+# Build PTA polygon (fill with None where no values)
+pta_plot = [patient_data["PTA_Right"], patient_data["PTA_Left"], 0, 0]
+srt_plot = [0, 0, patient_data["SRT_Right"], patient_data["SRT_Left"]]
 
-# Close loops
-pta_values += pta_values[:1]
-srt_values += srt_values[:1]
-
+# Close radar loops
+pta_plot += pta_plot[:1]
+srt_plot += srt_plot[:1]
 N = len(categories)
 angles = np.linspace(0, 2*np.pi, N, endpoint=False).tolist()
 angles += angles[:1]
@@ -106,25 +94,27 @@ angles += angles[:1]
 # Plot radar chart
 fig, ax = plt.subplots(figsize=(6,6), subplot_kw=dict(polar=True))
 
-ax.plot(angles, pta_values, linewidth=2, color="orange", label="PTA")
-ax.fill(angles, pta_values, alpha=0.25, color="orange")
+ax.plot(angles, pta_plot, linewidth=2, color="orange", label="PTA")
+ax.fill(angles, pta_plot, alpha=0.25, color="orange")
 
-ax.plot(angles, srt_values, linewidth=2, color="blue", label="SRT")
-ax.fill(angles, srt_values, alpha=0.25, color="blue")
+ax.plot(angles, srt_plot, linewidth=2, color="blue", label="SRT")
+ax.fill(angles, srt_plot, alpha=0.25, color="blue")
 
 # Labels
 ax.set_xticks(angles[:-1])
 ax.set_xticklabels(categories)
 
-# Radial axis scale
+# Radial axis scale (10 to 60 dB HL)
 ax.set_rlabel_position(0)
-ax.set_yticks([20, 40, 60, 80, 100])
-ax.set_yticklabels(["20","40","60","80","100"])
-ax.set_ylim(0, 110)
+ax.set_yticks([10, 20, 30, 40, 50, 60])
+ax.set_yticklabels(["10","20","30","40","50","60"])
+ax.set_ylim(10, 60)
 
 ax.set_title(f"Patient {patient_id} - PTA vs SRT")
 ax.legend(loc="upper right", bbox_to_anchor=(1.1, 1.1))
 
 st.pyplot(fig)
+
+
 
 
