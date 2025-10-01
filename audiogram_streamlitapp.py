@@ -43,8 +43,9 @@ something that was previously not possible. By making audiograms extractable and
 Reg-ent can **expand research opportunities** and support the development of new quality measures.
 """)
 
-# Show the synthesized dataset
-st.dataframe(audiogram_df, use_container_width=True)
+
+# Show the synthesized dataset directly under the text
+st.dataframe(audiogram_df, use_container_width=True, hide_index=True)
 
 # -------------------------------
 # Section 3: Interactive Exploration
@@ -108,6 +109,7 @@ sns.heatmap(
 )
 ax.set_title("Heatmap of Mean PTA, SRT, SDT by Category")
 st.pyplot(fig)
+
 
 
 
