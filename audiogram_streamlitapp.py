@@ -70,10 +70,10 @@ st.dataframe(summary_df, use_container_width=True, hide_index=True)
 # -------------------------------
 st.subheader("📊 Grouped Bar Chart: PTA, SRT, SDT by Hearing Loss Type")
 
-# Compute mean PTA, SRT, SDT for each HL type (ear-level)
+# Collapse to ear-level dataset
 ear_data = []
 for side in ["Right", "Left"]:
-    tmp = audiogram_df[["PatientID", f"PTA_{side}", f"SRT_{side}", f"SDT_{side}", "HL_Type"]].copy()
+    tmp = audiogram_df[["PatientID", f"PTA_{side}", f"SRT_{side}", f"SDT_{side}", "Category"]].copy()
     tmp = tmp.rename(columns={
         f"PTA_{side}": "PTA",
         f"SRT_{side}": "SRT",
@@ -83,33 +83,37 @@ for side in ["Right", "Left"]:
     ear_data.append(tmp)
 
 ear_df = pd.concat(ear_data)
-hl_means = ear_df.groupby("HL_Type")[["PTA", "SRT", "SDT"]].mean().reset_index()
 
-# Plot grouped bar chart
+# Compute mean PTA, SRT, SDT by Category
+cat_means = ear_df.groupby("Category")[["PTA", "SRT", "SDT"]].mean().reset_index()
+
+# Grouped bar chart
 fig, ax = plt.subplots(figsize=(8,6))
-hl_means.plot(x="HL_Type", kind="bar", ax=ax, rot=45)
+cat_means.plot(x="Category", kind="bar", ax=ax, rot=45)
 
 ax.set_ylabel("dB HL")
-ax.set_title("Mean PTA, SRT, and SDT by Hearing Loss Type")
+ax.set_title("Mean PTA, SRT, and SDT by Category")
 ax.legend(title="Metric")
 st.pyplot(fig)
+
 
 # -------------------------------
 # Section 3e: Heatmap
 # -------------------------------
-st.subheader("🔥 Heatmap: PTA, SRT, SDT by Hearing Loss Type")
+st.subheader("🔥 Heatmap: PTA, SRT, SDT by Category")
 
 import seaborn as sns
 
 fig, ax = plt.subplots(figsize=(8,6))
 sns.heatmap(
-    hl_means.set_index("HL_Type"),
+    cat_means.set_index("Category"),
     annot=True, cmap="coolwarm", fmt=".1f", cbar_kws={'label': 'dB HL'},
     ax=ax
 )
 
-ax.set_title("Heatmap of Mean PTA, SRT, SDT by Hearing Loss Type")
+ax.set_title("Heatmap of Mean PTA, SRT, SDT by Category")
 st.pyplot(fig)
+
 
 
 
