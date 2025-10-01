@@ -67,59 +67,68 @@ st.dataframe(summary_df, use_container_width=True, hide_index=True)
 # -------------------------------
 # Section 3b: Radar Graph Explorer
 # -------------------------------
-st.subheader("🎯 Radar Graph: Mean PTA, SRT, and SDT by Category")
+st.subheader("🎯 Radar Graph: PTA, SRT, SDT by Hearing Loss Type")
 
-# Sidebar category selection
-selected_category = st.selectbox("Select Hearing Loss Category:", audiogram_df["Category"].unique())
+# Collapse dataset to ear-level
+ear_data = []
+for side in ["Right", "Left"]:
+    tmp = audiogram_df[["PatientID", f"PTA_{side}", f"SRT_{side}", f"SDT_{side}", f"HL_Type_{side}"]].copy()
+    tmp = tmp.rename(columns={
+        f"PTA_{side}": "PTA",
+        f"SRT_{side}": "SRT",
+        f"SDT_{side}": "SDT",
+        f"HL_Type_{side}": "HL_Type"
+    })
+    tmp["Ear"] = side
+    ear_data.append(tmp)
 
-# Compute mean values for this category
-mean_values = (
-    audiogram_df[audiogram_df["Category"] == selected_category]
-    [["PTA_Right", "PTA_Left", "SRT_Right", "SRT_Left", "SDT_Right", "SDT_Left"]]
-    .mean()
-)
+ear_df = pd.concat(ear_data)
 
-# Axes = PTA, SRT, SDT for both ears
-categories = ["PTA_Right", "PTA_Left", "SRT_Right", "SRT_Left", "SDT_Right", "SDT_Left"]
+# Compute mean PTA, SRT, SDT for each HL type
+hl_means = ear_df.groupby("HL_Type")[["PTA", "SRT", "SDT"]].mean()
 
-pta_plot = [mean_values["PTA_Right"], mean_values["PTA_Left"], 0, 0, 0, 0]
-srt_plot = [0, 0, mean_values["SRT_Right"], mean_values["SRT_Left"], 0, 0]
-sdt_plot = [0, 0, 0, 0, mean_values["SDT_Right"], mean_values["SDT_Left"]]
+# Define HL types as radar axes
+categories = ["Mild", "Conductive", "Sensorineural", "Mixed"]
+pta_vals = [hl_means.loc[cat, "PTA"] if cat in hl_means.index else 0 for cat in categories]
+srt_vals = [hl_means.loc[cat, "SRT"] if cat in hl_means.index else 0 for cat in categories]
+sdt_vals = [hl_means.loc[cat, "SDT"] if cat in hl_means.index else 0 for cat in categories]
 
-# Close radar loops
-pta_plot += pta_plot[:1]
-srt_plot += srt_plot[:1]
-sdt_plot += sdt_plot[:1]
+# Close the loops
+pta_vals += pta_vals[:1]
+srt_vals += srt_vals[:1]
+sdt_vals += sdt_vals[:1]
 N = len(categories)
 angles = np.linspace(0, 2*np.pi, N, endpoint=False).tolist()
 angles += angles[:1]
 
-# Plot radar chart
+# Plot radar
 fig, ax = plt.subplots(figsize=(6,6), subplot_kw=dict(polar=True))
 
-ax.plot(angles, pta_plot, linewidth=2, color="orange", label="PTA (Mean)")
-ax.fill(angles, pta_plot, alpha=0.25, color="orange")
+ax.plot(angles, pta_vals, linewidth=2, color="orange", label="PTA")
+ax.fill(angles, pta_vals, alpha=0.25, color="orange")
 
-ax.plot(angles, srt_plot, linewidth=2, color="blue", label="SRT (Mean)")
-ax.fill(angles, srt_plot, alpha=0.25, color="blue")
+ax.plot(angles, srt_vals, linewidth=2, color="blue", label="SRT")
+ax.fill(angles, srt_vals, alpha=0.25, color="blue")
 
-ax.plot(angles, sdt_plot, linewidth=2, color="green", label="SDT (Mean)")
-ax.fill(angles, sdt_plot, alpha=0.25, color="green")
+ax.plot(angles, sdt_vals, linewidth=2, color="green", label="SDT")
+ax.fill(angles, sdt_vals, alpha=0.25, color="green")
 
-# Labels
+# Axis labels
 ax.set_xticks(angles[:-1])
 ax.set_xticklabels(categories)
 
-# Radial axis (choose 10–60 for demo or 0–110 full clinical)
+# Radial axis (demo 10–60 like your screenshot)
 ax.set_rlabel_position(0)
 ax.set_yticks([10, 20, 30, 40, 50, 60])
 ax.set_yticklabels(["10","20","30","40","50","60"])
 ax.set_ylim(10, 60)
 
-ax.set_title(f"Mean PTA, SRT, SDT - {selected_category}")
+ax.set_title("Sample Radar Graph of Hearing Loss Metrics")
 ax.legend(loc="upper right", bbox_to_anchor=(1.1, 1.1))
 
 st.pyplot(fig)
+
+
 
 
 
