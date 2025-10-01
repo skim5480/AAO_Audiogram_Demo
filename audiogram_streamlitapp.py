@@ -67,7 +67,10 @@ st.dataframe(summary_df, use_container_width=True, hide_index=True)
 # -------------------------------
 # Section 3b: Radar Graph Explorer
 # -------------------------------
-st.subheader("🎯 Radar Graph: PTA, SRT, SDT by Hearing Loss Type")
+# -------------------------------
+# Section 3c: Radar Graph by Hearing Loss Type
+# -------------------------------
+st.subheader("🎯 Radar Graph: PTA, SRT, SDT Across Hearing Loss Types")
 
 # Collapse dataset to ear-level
 ear_data = []
@@ -87,13 +90,14 @@ ear_df = pd.concat(ear_data)
 # Compute mean PTA, SRT, SDT for each HL type
 hl_means = ear_df.groupby("HL_Type")[["PTA", "SRT", "SDT"]].mean()
 
-# Define HL types as radar axes
+# Define HL types for radar axes
 categories = ["Mild", "Conductive", "Sensorineural", "Mixed"]
+
 pta_vals = [hl_means.loc[cat, "PTA"] if cat in hl_means.index else 0 for cat in categories]
 srt_vals = [hl_means.loc[cat, "SRT"] if cat in hl_means.index else 0 for cat in categories]
 sdt_vals = [hl_means.loc[cat, "SDT"] if cat in hl_means.index else 0 for cat in categories]
 
-# Close the loops
+# Close radar loops
 pta_vals += pta_vals[:1]
 srt_vals += srt_vals[:1]
 sdt_vals += sdt_vals[:1]
@@ -101,7 +105,7 @@ N = len(categories)
 angles = np.linspace(0, 2*np.pi, N, endpoint=False).tolist()
 angles += angles[:1]
 
-# Plot radar
+# Plot radar chart
 fig, ax = plt.subplots(figsize=(6,6), subplot_kw=dict(polar=True))
 
 ax.plot(angles, pta_vals, linewidth=2, color="orange", label="PTA")
@@ -117,13 +121,13 @@ ax.fill(angles, sdt_vals, alpha=0.25, color="green")
 ax.set_xticks(angles[:-1])
 ax.set_xticklabels(categories)
 
-# Radial axis (demo 10–60 like your screenshot)
+# Radial axis (10–60 for demo aesthetics)
 ax.set_rlabel_position(0)
 ax.set_yticks([10, 20, 30, 40, 50, 60])
 ax.set_yticklabels(["10","20","30","40","50","60"])
 ax.set_ylim(10, 60)
 
-ax.set_title("Sample Radar Graph of Hearing Loss Metrics")
+ax.set_title("Hearing Loss Types: PTA, SRT, SDT")
 ax.legend(loc="upper right", bbox_to_anchor=(1.1, 1.1))
 
 st.pyplot(fig)
