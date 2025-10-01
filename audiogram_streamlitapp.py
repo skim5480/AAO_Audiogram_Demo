@@ -64,15 +64,13 @@ st.subheader("📈 Summary Statistics by Hearing Category")
 summary_df = filtered_df.groupby("Category")[["PTA_Right", "PTA_Left", "WRS_Right", "WRS_Left"]].mean().round(1).reset_index()
 st.dataframe(summary_df, use_container_width=True, hide_index=True)
 
-# -------------------------------
-# Section 3b: Radar Graph Explorer
-# -------------------------------
-# -------------------------------
-# Section 3c: Radar Graph by Hearing Loss Type
-# -------------------------------
-st.subheader("🎯 Radar Graph: PTA, SRT, SDT Across Hearing Loss Types (Overall Averages)")
 
-# Create ear-level dataset
+# -------------------------------
+# Section 3b: Grouped Bar Chart
+# -------------------------------
+st.subheader("📊 Grouped Bar Chart: PTA, SRT, SDT by Hearing Loss Type")
+
+# Compute mean PTA, SRT, SDT for each HL type (ear-level)
 ear_data = []
 for side in ["Right", "Left"]:
     tmp = audiogram_df[["PatientID", f"PTA_{side}", f"SRT_{side}", f"SDT_{side}", "HL_Type"]].copy()
@@ -85,51 +83,18 @@ for side in ["Right", "Left"]:
     ear_data.append(tmp)
 
 ear_df = pd.concat(ear_data)
+hl_means = ear_df.groupby("HL_Type")[["PTA", "SRT", "SDT"]].mean().reset_index()
 
-# Compute mean PTA, SRT, SDT for each HL type
-hl_means = ear_df.groupby("HL_Type")[["PTA", "SRT", "SDT"]].mean()
+# Plot grouped bar chart
+fig, ax = plt.subplots(figsize=(8,6))
+hl_means.plot(x="HL_Type", kind="bar", ax=ax, rot=45)
 
-# Define HL types as radar axes
-categories = ["Normal", "Mild", "Conductive", "Sensorineural", "Mixed"]
-
-pta_vals = [hl_means.loc[cat, "PTA"] if cat in hl_means.index else 0 for cat in categories]
-srt_vals = [hl_means.loc[cat, "SRT"] if cat in hl_means.index else 0 for cat in categories]
-sdt_vals = [hl_means.loc[cat, "SDT"] if cat in hl_means.index else 0 for cat in categories]
-
-# Close the loops
-pta_vals += pta_vals[:1]
-srt_vals += srt_vals[:1]
-sdt_vals += sdt_vals[:1]
-N = len(categories)
-angles = np.linspace(0, 2*np.pi, N, endpoint=False).tolist()
-angles += angles[:1]
-
-# Plot radar chart
-fig, ax = plt.subplots(figsize=(6,6), subplot_kw=dict(polar=True))
-
-ax.plot(angles, pta_vals, linewidth=2, color="orange", label="PTA (Mean)")
-ax.fill(angles, pta_vals, alpha=0.25, color="orange")
-
-ax.plot(angles, srt_vals, linewidth=2, color="blue", label="SRT (Mean)")
-ax.fill(angles, srt_vals, alpha=0.25, color="blue")
-
-ax.plot(angles, sdt_vals, linewidth=2, color="green", label="SDT (Mean)")
-ax.fill(angles, sdt_vals, alpha=0.25, color="green")
-
-# Labels
-ax.set_xticks(angles[:-1])
-ax.set_xticklabels(categories)
-
-# Radial axis (demo scale 10–60, but can extend to 0–110 for severe/profound)
-ax.set_rlabel_position(0)
-ax.set_yticks([10, 20, 30, 40, 50, 60])
-ax.set_yticklabels(["10","20","30","40","50","60"])
-ax.set_ylim(10, 60)
-
-ax.set_title("Overall Averages: PTA, SRT, SDT by Hearing Loss Type")
-ax.legend(loc="upper right", bbox_to_anchor=(1.1, 1.1))
-
+ax.set_ylabel("dB HL")
+ax.set_title("Mean PTA, SRT, and SDT by Hearing Loss Type")
+ax.legend(title="Metric")
 st.pyplot(fig)
+
+
 
 
 
