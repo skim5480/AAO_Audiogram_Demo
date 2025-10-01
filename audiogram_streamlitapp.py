@@ -23,8 +23,7 @@ Audiograms are typically considered **unstructured data** in EHRs because they a
 This creates inconsistency, as many providers do not enter structured audiometry data directly into the EHR but instead upload scanned copies.  
 
 As a result, extracting audiogram information has historically been difficult and, in many cases, not possible.  
-While standards such as **LOINC** and **SNOMED** exist for hearing thresholds, most EHRs do not consistently apply them,  
-further limiting standardization and interoperability.
+While standards such as **LOINC** and **SNOMED** exist for hearing thresholds, most EHRs do not consistently apply them, further limiting standardization and interoperability.
 """)
 
 # Show a PNG example of an unstructured audiogram
@@ -109,6 +108,7 @@ sns.heatmap(
 )
 ax.set_title("Heatmap of Mean PTA, SRT, SDT by Category")
 st.pyplot(fig)
+
 
 
 
