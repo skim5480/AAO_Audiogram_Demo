@@ -70,17 +70,16 @@ st.dataframe(summary_df, use_container_width=True, hide_index=True)
 # -------------------------------
 # Section 3c: Radar Graph by Hearing Loss Type
 # -------------------------------
-st.subheader("🎯 Radar Graph: PTA, SRT, SDT Across Hearing Loss Types")
+st.subheader("🎯 Radar Graph: PTA, SRT, SDT Across Hearing Loss Types (Overall Averages)")
 
-# Collapse dataset to ear-level
+# Create ear-level dataset
 ear_data = []
 for side in ["Right", "Left"]:
-    tmp = audiogram_df[["PatientID", f"PTA_{side}", f"SRT_{side}", f"SDT_{side}", f"HL_Type_{side}"]].copy()
+    tmp = audiogram_df[["PatientID", f"PTA_{side}", f"SRT_{side}", f"SDT_{side}", "HL_Type"]].copy()
     tmp = tmp.rename(columns={
         f"PTA_{side}": "PTA",
         f"SRT_{side}": "SRT",
-        f"SDT_{side}": "SDT",
-        f"HL_Type_{side}": "HL_Type"
+        f"SDT_{side}": "SDT"
     })
     tmp["Ear"] = side
     ear_data.append(tmp)
@@ -90,14 +89,14 @@ ear_df = pd.concat(ear_data)
 # Compute mean PTA, SRT, SDT for each HL type
 hl_means = ear_df.groupby("HL_Type")[["PTA", "SRT", "SDT"]].mean()
 
-# Define HL types for radar axes
-categories = ["Mild", "Conductive", "Sensorineural", "Mixed"]
+# Define HL types as radar axes
+categories = ["Normal", "Mild", "Conductive", "Sensorineural", "Mixed"]
 
 pta_vals = [hl_means.loc[cat, "PTA"] if cat in hl_means.index else 0 for cat in categories]
 srt_vals = [hl_means.loc[cat, "SRT"] if cat in hl_means.index else 0 for cat in categories]
 sdt_vals = [hl_means.loc[cat, "SDT"] if cat in hl_means.index else 0 for cat in categories]
 
-# Close radar loops
+# Close the loops
 pta_vals += pta_vals[:1]
 srt_vals += srt_vals[:1]
 sdt_vals += sdt_vals[:1]
@@ -108,29 +107,30 @@ angles += angles[:1]
 # Plot radar chart
 fig, ax = plt.subplots(figsize=(6,6), subplot_kw=dict(polar=True))
 
-ax.plot(angles, pta_vals, linewidth=2, color="orange", label="PTA")
+ax.plot(angles, pta_vals, linewidth=2, color="orange", label="PTA (Mean)")
 ax.fill(angles, pta_vals, alpha=0.25, color="orange")
 
-ax.plot(angles, srt_vals, linewidth=2, color="blue", label="SRT")
+ax.plot(angles, srt_vals, linewidth=2, color="blue", label="SRT (Mean)")
 ax.fill(angles, srt_vals, alpha=0.25, color="blue")
 
-ax.plot(angles, sdt_vals, linewidth=2, color="green", label="SDT")
+ax.plot(angles, sdt_vals, linewidth=2, color="green", label="SDT (Mean)")
 ax.fill(angles, sdt_vals, alpha=0.25, color="green")
 
-# Axis labels
+# Labels
 ax.set_xticks(angles[:-1])
 ax.set_xticklabels(categories)
 
-# Radial axis (10–60 for demo aesthetics)
+# Radial axis (demo scale 10–60, but can extend to 0–110 for severe/profound)
 ax.set_rlabel_position(0)
 ax.set_yticks([10, 20, 30, 40, 50, 60])
 ax.set_yticklabels(["10","20","30","40","50","60"])
 ax.set_ylim(10, 60)
 
-ax.set_title("Hearing Loss Types: PTA, SRT, SDT")
+ax.set_title("Overall Averages: PTA, SRT, SDT by Hearing Loss Type")
 ax.legend(loc="upper right", bbox_to_anchor=(1.1, 1.1))
 
 st.pyplot(fig)
+
 
 
 
