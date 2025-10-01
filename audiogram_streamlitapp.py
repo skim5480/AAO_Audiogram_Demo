@@ -55,10 +55,6 @@ category = st.sidebar.multiselect(
     default=audiogram_df["Category"].unique()
 )
 
-filtered_df = audiogram_df[audiogram_df["Category"].isin(category)]
-st.write("Filtered view of dataset based on hearing category:")
-st.dataframe(filtered_df, use_container_width=True, hide_index=True)
-
 # Show summary statistics by category
 st.subheader("📈 Summary Statistics by Hearing Category")
 summary_df = filtered_df.groupby("Category")[["PTA_Right", "PTA_Left", "WRS_Right", "WRS_Left"]].mean().round(1).reset_index()
@@ -113,6 +109,7 @@ sns.heatmap(
 
 ax.set_title("Heatmap of Mean PTA, SRT, SDT by Category")
 st.pyplot(fig)
+
 
 
 
