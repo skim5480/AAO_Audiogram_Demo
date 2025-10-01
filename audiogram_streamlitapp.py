@@ -26,8 +26,8 @@ While standards such as **LOINC** and **SNOMED** exist for hearing thresholds, m
 further limiting standardization and interoperability.
 """)
 
-# Show a PNG example of an unstructured audiogram
-st.image("sample_audiogram.png", caption="Example of Unstructured Audiogram (Scanned Image)", use_column_width=True)
+st.image("sample_audiogram.png", caption="Example of Unstructured Audiogram (Scanned Image)", use_container_width=True)
+
 
 # -------------------------------
 # Section 2: Structured Dataset
@@ -113,6 +113,7 @@ sns.heatmap(
 
 ax.set_title("Heatmap of Mean PTA, SRT, SDT by Category")
 st.pyplot(fig)
+
 
 
 
