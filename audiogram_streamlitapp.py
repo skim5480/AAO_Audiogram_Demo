@@ -94,6 +94,22 @@ ax.set_title("Mean PTA, SRT, and SDT by Hearing Loss Type")
 ax.legend(title="Metric")
 st.pyplot(fig)
 
+# -------------------------------
+# Section 3e: Heatmap
+# -------------------------------
+st.subheader("🔥 Heatmap: PTA, SRT, SDT by Hearing Loss Type")
+
+import seaborn as sns
+
+fig, ax = plt.subplots(figsize=(8,6))
+sns.heatmap(
+    hl_means.set_index("HL_Type"),
+    annot=True, cmap="coolwarm", fmt=".1f", cbar_kws={'label': 'dB HL'},
+    ax=ax
+)
+
+ax.set_title("Heatmap of Mean PTA, SRT, SDT by Hearing Loss Type")
+st.pyplot(fig)
 
 
 
