@@ -49,7 +49,7 @@ st.dataframe(audiogram_df, use_container_width=True)
 # -------------------------------
 # Section 3: Interactive Exploration
 # -------------------------------
-st.header("IClinical Insights from Structured Audiograms")
+st.header("Clinical Insights from Structured Audiograms")
 category = st.sidebar.multiselect(
     "Filter by Hearing Category:",
     options=audiogram_df["Category"].unique(),
@@ -108,5 +108,6 @@ sns.heatmap(
 )
 ax.set_title("Heatmap of Mean PTA, SRT, SDT by Category")
 st.pyplot(fig)
+
 
 
